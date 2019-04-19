@@ -1,7 +1,7 @@
 {
   "name": "lookpath",
-  "version": "0.0.1",
-  "description": "exec.LookPath",
+  "version": "0.0.2",
+  "description": "The minimum and most straightforward way to check if command exists and where the executable is.",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,9 @@
     "url": "git+https://github.com/otiai10/lookpath.git"
   },
   "keywords": [
-    "exec.LookPath"
+    "exec.LookPath",
+    "command",
+    "exists"
   ],
   "bugs": {
     "url": "https://github.com/otiai10/lookpath/issues"
