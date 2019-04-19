@@ -1,0 +1,22 @@
+{
+  "name": "lookpath",
+  "version": "0.0.1",
+  "description": "exec.LookPath",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "otiai10",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/otiai10/lookpath.git"
+  },
+  "keywords": [
+    "exec.LookPath"
+  ],
+  "bugs": {
+    "url": "https://github.com/otiai10/lookpath/issues"
+  },
+  "homepage": "https://github.com/otiai10/lookpath#readme"
+}
