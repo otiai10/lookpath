@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * @param command 
  * @return {string | undefined} if the command is either relative or absolute file path, returns absolute filepath.
  */
 const __isFilepath = (command: string): string | undefined => {
-  return;
+    return;
 }
 
 const __isExecutable = (abspath: string): Promise<string> => {
@@ -33,32 +33,32 @@ const __readDir = (dir: string): Promise<string[]> => {
 const __findExecutableUnderDir = (target: string, dir: string): Promise<string[]> => {
     return __readDir(dir).then((files: string[]) => {
         return Promise.all(
-          files.filter((file: string) => {
-            if (path.basename(file) !== target) return false;
-            return true;
-        }).map((file: string) => __isExecutable(path.join(dir, file))));
+            files.filter((file: string) => {
+                if (path.basename(file) !== target) return false;
+                return true;
+            }).map((file: string) => __isExecutable(path.join(dir, file))));
     })
 };
 
 const lookpath = (command: string, opt = {path: []}): Promise<string> => {
 
-  const directpath = __isFilepath(command);
-  if (directpath) {
-    return __isExecutable(directpath);
-  }
+    const directpath = __isFilepath(command);
+    if (directpath) {
+        return __isExecutable(directpath);
+    }
 
-  // TODO: Windows (PATHEXT)
-  return Promise.all(
-    (process.env.PATH || '')
-      .split(':')
-      .concat(opt.path || [])
-      .map(pathdir => __findExecutableUnderDir(command, pathdir))
-  ).then(all => {
-    const [found] = all
-      .reduce((prev, curr) => prev.concat(curr), [])
-      .filter(abspath => !!abspath);
-    return Promise.resolve(found);
-  });
+    // TODO: Windows (PATHEXT)
+    return Promise.all(
+        (process.env.PATH || '')
+            .split(':')
+            .concat(opt.path || [])
+            .map(pathdir => __findExecutableUnderDir(command, pathdir))
+    ).then(all => {
+        const [found] = all
+            .reduce((prev, curr) => prev.concat(curr), [])
+            .filter(abspath => !!abspath);
+        return Promise.resolve(found);
+    });
 
 };
 

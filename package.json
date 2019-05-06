@@ -6,6 +6,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "lint": "eslint ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "otiai10",
@@ -25,6 +26,9 @@
   "homepage": "https://github.com/otiai10/lookpath#readme",
   "devDependencies": {
     "@types/node": "^12.0.0",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "@typescript-eslint/parser": "^1.7.0",
+    "eslint": "^5.16.0",
     "typescript": "^3.4.5"
   }
 }
