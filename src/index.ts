@@ -40,7 +40,7 @@ const __findExecutableUnderDir = (target: string, dir: string): Promise<string[]
     })
 };
 
-const lookpath = (command: string, opt = {path: []}): Promise<string> => {
+const lookpath = (command: string, opt: {path?: string[]} = {path: []}): Promise<string> => {
 
     const directpath = __isFilepath(command);
     if (directpath) {
@@ -62,4 +62,4 @@ const lookpath = (command: string, opt = {path: []}): Promise<string> => {
 
 };
 
-module.exports = lookpath;
+export default lookpath;
