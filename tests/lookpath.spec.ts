@@ -1,4 +1,4 @@
-import lookpath from '../src/index';
+import { lookpath } from '../src/index';
 import * as path from 'path';
 
 describe('lookpath', () => {
@@ -21,4 +21,15 @@ describe('lookpath', () => {
         expect(withAdditionalPath).not.toBeUndefined();
     });
 
+    it('should accept a relative or absolute file path', async () => {
+        const withRelative = await lookpath('./tests/data/bin/hello_world');
+        expect(withRelative).not.toBeUndefined();
+        const withAbsolute = await lookpath(path.join(__dirname, 'data', 'bin', 'hello_world'));
+        expect(withAbsolute).not.toBeUndefined();
+    });
+
+    it('should return undefined if the file is NOT executable', async () => {
+        const notExecutable = await lookpath('./tests/data/bin/goodbye_world');
+        expect(notExecutable).toBeUndefined();
+    });
 });

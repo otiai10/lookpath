@@ -5,9 +5,10 @@
   "main": "lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./lib && tsc",
     "lint": "eslint ./src/index.ts",
-    "test": "jest"
+    "test": "jest --coverage",
+    "validate": "node -e 'require(\"./lib\").lookpath(\"npm\").then(abs => console.log(abs))'"
   },
   "author": "otiai10",
   "license": "MIT",

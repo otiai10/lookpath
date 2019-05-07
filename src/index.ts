@@ -1,65 +1,53 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/**
- * @param command 
- * @return {string | undefined} if the command is either relative or absolute file path, returns absolute filepath.
- */
-const __isFilepath = (command: string): string | undefined => {
-    return;
+const isWindows = /^win/i.test(process.platform);
+
+const isFilepath = (cmd: string): string | undefined => {
+    return cmd.includes(path.sep) ? path.resolve(cmd) : undefined;
 }
 
-const __isExecutable = (abspath: string): Promise<string> => {
-    return new Promise(resolve => {
-        fs.access(abspath, fs.constants.X_OK, err => resolve(err ? '' : abspath));
-    });
+const getApplicableExtensions = (): string[] => {
+    return (isWindows) ? (process.env.PATHEXT || '').split(path.delimiter) : [''];
 };
 
-/**
- * @param {*} dir 
- * @returns Promise<[]string>
- */
-const __readDir = (dir: string): Promise<string[]> => {
-    return new Promise((resolve) => {
-        fs.readdir(dir, (err, files) => {
-            // if (err) console.error(err);
-            // console.log(files);
-            resolve(files || []);
-        });
-    });
+const access = (absWithExt: string): Promise<string> => {
+    return new Promise(resolve => fs.access(absWithExt, fs.constants.X_OK, err => resolve(err ? '' : absWithExt)));
 };
 
-const __findExecutableUnderDir = (target: string, dir: string): Promise<string[]> => {
-    return __readDir(dir).then((files: string[]) => {
-        return Promise.all(
-            files.filter((file: string) => {
-                if (path.basename(file) !== target) return false;
-                return true;
-            }).map((file: string) => __isExecutable(path.join(dir, file))));
-    })
+const isExecutable = async (abspath: string): Promise<string> => {
+    const checks = getApplicableExtensions().map(ext => access(abspath + ext));
+    const abspathes = await Promise.all(checks);
+    return Promise.resolve(abspathes.filter(abs => !!abs)[0]);
 };
 
-const lookpath = (command: string, opt: {path?: string[]} = {path: []}): Promise<string> => {
-
-    const directpath = __isFilepath(command);
-    if (directpath) {
-        return __isExecutable(directpath);
-    }
-
-    // TODO: Windows (PATHEXT)
-    return Promise.all(
-        (process.env.PATH || '')
-            .split(':')
-            .concat(opt.path || [])
-            .map(pathdir => __findExecutableUnderDir(command, pathdir))
-    ).then(all => {
-        const [found] = all
-            .reduce((prev, curr) => prev.concat(curr), [])
-            .filter(abspath => !!abspath);
-        return Promise.resolve(found);
-    });
-
+const ls = (dir: string): Promise<string[]> => {
+    return new Promise(resolve => fs.readdir(dir, (err, files) => resolve(files || [])));
 };
 
-export default lookpath;
+const findExecutableUnderDir = async (cmd: string, dir: string): Promise<string[]> => {
+    const files = await ls(dir);
+    const matches = files.filter(f => path.basename(f).split('.')[0] === cmd);
+    return Promise.all(matches.map(f => isExecutable(path.join(dir, f))));
+};
+
+const getDirsToWalkThrough = (extra: string[] = []): string[] => {
+    const envname = isWindows ? 'Path' : 'PATH';
+    return (process.env[envname] || '').split(path.delimiter).concat(extra);
+};
+
+const flatten = <T>(arr: T[][]): T[] => {
+    return arr.reduce((prev, curr) => prev.concat(curr), []);
+}; 
+
+export async function lookpath(command: string, opt: {path?: string[]} = {path: []}): Promise<string> {
+
+    const directpath = isFilepath(command);
+    if (directpath) return isExecutable(directpath);
+
+    if (!opt.path) opt.path = [];
+    const dirs = getDirsToWalkThrough(opt.path);
+    const detections = dirs.map(dir => findExecutableUnderDir(command, dir));
+    const matched = await Promise.all(detections);
+    return flatten<string>(matched).filter(abs => !!abs)[0];
+};
