@@ -8,7 +8,8 @@
     "build": "rm -rf ./lib && tsc",
     "lint": "eslint ./src/index.ts",
     "test": "jest --coverage",
-    "validate": "node -e 'require(\"./lib\").lookpath(\"npm\").then(abs => console.log(abs))'"
+    "validate": "node -e 'require(\"./lib\").lookpath(\"npm\").then(abs => console.log(abs))'",
+    "release": "npm run build && npm run validate && npm publish"
   },
   "author": "otiai10",
   "license": "MIT",
