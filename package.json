@@ -2,7 +2,7 @@
   "name": "lookpath",
   "version": "0.1.0",
   "description": "The minimum and most straightforward way to check if command exists and where the executable is.",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "rm -rf ./lib && tsc",
