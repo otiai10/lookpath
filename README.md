@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/otiai10/lookpath.svg?style=svg)](https://circleci.com/gh/otiai10/lookpath)
 [![codecov](https://codecov.io/gh/otiai10/lookpath/branch/master/graph/badge.svg)](https://codecov.io/gh/otiai10/lookpath)
+[![npm version](https://badge.fury.io/js/lookpath.svg)](https://badge.fury.io/js/lookpath)
 
 To check if the command exists and where the executable file is.
 
