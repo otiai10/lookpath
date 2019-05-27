@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "description": "The minimum and most straightforward way to check if command exists and where the executable is.",
   "main": "./lib/index.js",
+  "bin": {
+    "lookpath": "bin/lookpath.js"
+  },
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "rm -rf ./lib && tsc",
     "lint": "eslint ./src/index.ts",
     "test": "jest --coverage",
-    "validate": "npm run build && node -e 'require(\"./lib\").lookpath(\"npm\").then(abs => console.log(abs))'",
+    "validate": "npm run build && node ./bin/lookpath.js npm",
     "release": "npm run build && npm run validate && npm publish"
   },
   "author": "otiai10",
