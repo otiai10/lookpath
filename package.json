@@ -1,6 +1,6 @@
 {
   "name": "lookpath",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The minimum and most straightforward way to check if command exists and where the executable is.",
   "main": "./lib/index.js",
   "bin": {
