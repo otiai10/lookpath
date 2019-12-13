@@ -85,7 +85,7 @@ const getDirsToWalkThrough = (additionalPaths: string[] = []): string[] => {
  */
 const flatten = <T>(arr: T[][]): T[] => {
     return arr.reduce((prev, curr) => prev.concat(curr), []);
-}; 
+};
 
 /**
  * Returns async promise with absolute file path of given command,
