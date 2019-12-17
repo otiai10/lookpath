@@ -40,7 +40,7 @@ const access = (absWithExt: string): Promise<string> => {
  * @return {Promise<string>} Resolves the absolute file path just checked, or undefined.
  */
 const isExecutable = async (abspath: string): Promise<string> => {
-    const checks = getApplicableExtensions().map(ext => access(abspath + ext));
+    const checks = getApplicableExtensions().map(ext => access(abspath.toLocaleLowerCase().endsWith(ext.toLocaleLowerCase()) ? abspath : abspath + ext));
     const abspathes = await Promise.all(checks);
     return Promise.resolve(abspathes.filter(abs => !!abs)[0]);
 };
@@ -85,7 +85,7 @@ const getDirsToWalkThrough = (additionalPaths: string[] = []): string[] => {
  */
 const flatten = <T>(arr: T[][]): T[] => {
     return arr.reduce((prev, curr) => prev.concat(curr), []);
-}; 
+};
 
 /**
  * Returns async promise with absolute file path of given command,
