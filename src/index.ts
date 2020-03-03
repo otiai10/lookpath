@@ -94,7 +94,7 @@ const flatten = <T>(arr: T[][]): T[] => {
  * @param {LookPathOption} opt Options for lookpath.
  * @return {Promise<string>} Resolves absolute file path, or undefined if not found.
  */
-export async function lookpath(command: string, opt: LookPathOption = {path: []}): Promise<string> {
+export async function lookpath(command: string, opt: LookPathOption = {path: []}): Promise<string | undefined> {
 
     const directpath = isFilepath(command);
     if (directpath) return isExecutable(directpath);
