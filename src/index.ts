@@ -92,7 +92,7 @@ const flatten = <T>(arr: T[][]): T[] => {
  * and resolves with undefined if the command not found.
  * @param {string} command Command name to look for.
  * @param {LookPathOption} opt Options for lookpath.
- * @return {Promise<string>} Resolves absolute file path, or undefined if not found.
+ * @return {Promise<string|undefined>} Resolves absolute file path, or undefined if not found.
  */
 export async function lookpath(command: string, opt: LookPathOption = {path: []}): Promise<string | undefined> {
 
