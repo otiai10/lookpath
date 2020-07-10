@@ -74,7 +74,9 @@ const findExecutableUnderDir = async (cmd: string, dir: string): Promise<string[
  */
 const getDirsToWalkThrough = (additionalPaths: string[] = []): string[] => {
     const envname = isWindows ? 'Path' : 'PATH';
-    return (process.env[envname] || '').split(path.delimiter).concat(additionalPaths);
+    return (process.env[envname] || '').split(path.delimiter).filter(function (item) {
+        return item.indexOf("/mnt") !== 0;
+     }).concat(additionalPaths);
 };
 
 /**
