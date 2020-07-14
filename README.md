@@ -1,8 +1,9 @@
 # lookpath
 
-[![CircleCI](https://circleci.com/gh/otiai10/lookpath.svg?style=svg)](https://circleci.com/gh/otiai10/lookpath)
+[![Node.js CI](https://github.com/otiai10/lookpath/workflows/Node.js%20CI/badge.svg)](https://github.com/otiai10/lookpath/actions/)
 [![codecov](https://codecov.io/gh/otiai10/lookpath/branch/master/graph/badge.svg)](https://codecov.io/gh/otiai10/lookpath)
 [![npm version](https://badge.fury.io/js/lookpath.svg)](https://badge.fury.io/js/lookpath)
+[![npm download](https://img.shields.io/npm/dt/lookpath.svg)](https://www.npmjs.com/package/lookpath)
 
 To check if the command exists and where the executable file is.
 
