@@ -17,8 +17,17 @@ describe('lookpath', () => {
         const withoutAdditionalPath = await lookpath('hello_world');
         expect(withoutAdditionalPath).toBeUndefined();
         const additionalPath = path.join(__dirname, 'data', 'bin')
-        const withAdditionalPath = await lookpath('hello_world', { path: [additionalPath] })
+        const withAdditionalPath = await lookpath('hello_world', { include: [additionalPath] })
         expect(withAdditionalPath).not.toBeUndefined();
+    });
+
+    it('should exclude path by option', async () => {
+        process.env['PATH'] = [process.env['PATH'], path.join(__dirname, 'data', 'bin')].join(path.delimiter);
+        process.env['Path'] = [process.env['Path'], path.join(__dirname, 'data', 'bin')].join(path.delimiter);
+        const withoutExclude = await lookpath('hello_world');
+        expect(withoutExclude).not.toBeUndefined();
+        const withExclude = await lookpath('hello_world', {exclude: [path.join(__dirname, 'data', 'bin')]});
+        expect(withExclude).toBeUndefined();
     });
 
     it('should accept a relative or absolute file path', async () => {
