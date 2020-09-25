@@ -21,6 +21,7 @@ jobs:
     - run: npm ci
     - run: npm run build
     - run: npm test
-    - run: ./node_modules/.bin/codecov -t $CODECOV_TOKEN
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage/coverage-final.json
