@@ -104,7 +104,7 @@ export async function lookpath(command: string, opt: LookPathOption = {}): Promi
     const detections = dirs.map(dir => findExecutableUnderDir(command, dir));
     const matched = await Promise.all(detections);
     return flatten<string>(matched).filter(abs => !!abs)[0];
-};
+}
 
 /**
  * Options for lookpath.
