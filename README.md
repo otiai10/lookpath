@@ -1,9 +1,10 @@
 # lookpath
 
-[![Node.js CI](https://github.com/otiai10/lookpath/workflows/Node.js%20CI/badge.svg)](https://github.com/otiai10/lookpath/actions/)
-[![codecov](https://codecov.io/gh/otiai10/lookpath/branch/master/graph/badge.svg)](https://codecov.io/gh/otiai10/lookpath)
 [![npm version](https://badge.fury.io/js/lookpath.svg)](https://badge.fury.io/js/lookpath)
 [![npm download](https://img.shields.io/npm/dt/lookpath.svg)](https://www.npmjs.com/package/lookpath)
+[![Node.js CI](https://github.com/otiai10/lookpath/workflows/Node.js%20CI/badge.svg)](https://github.com/otiai10/lookpath/actions/)
+[![codecov](https://codecov.io/gh/otiai10/lookpath/branch/master/graph/badge.svg)](https://codecov.io/gh/otiai10/lookpath)
+[![Maintainability](https://api.codeclimate.com/v1/badges/1cc9237695a7bd8e3d60/maintainability)](https://codeclimate.com/github/otiai10/lookpath/maintainability)
 
 To check if the command exists and where the executable file is.
 
