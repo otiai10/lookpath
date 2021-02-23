@@ -31,7 +31,7 @@ describe('lookpath', () => {
     });
 
     it('should accept a relative or absolute file path', async () => {
-        const withRelative = await lookpath('./tests/data/bin/hello_world');
+        const withRelative = await lookpath(path.join('.', 'tests', 'data', 'bin', 'hello_world'));
         expect(withRelative).not.toBeUndefined();
         const withAbsolute = await lookpath(path.join(__dirname, 'data', 'bin', 'hello_world'));
         expect(withAbsolute).not.toBeUndefined();
