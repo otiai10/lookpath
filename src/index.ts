@@ -40,7 +40,10 @@ const access = (absWithExt: string): Promise<string> => {
  * @return {Promise<string>} Resolves the absolute file path just checked, or undefined.
  */
 const isExecutable = async (abspath: string): Promise<string> => {
-    const checks = getApplicableExtensions().map(ext => access(abspath.toLocaleLowerCase().endsWith(ext.toLocaleLowerCase()) ? abspath : abspath + ext));
+    // {{{ TODO: Refactoring
+    const checks: Promise<string>[] = [access(abspath)];
+    getApplicableExtensions().map(ext => checks.push(access(abspath + ext)));
+    // }}}
     const abspathes = await Promise.all(checks);
     return Promise.resolve(abspathes.filter(abs => !!abs)[0]);
 };
