@@ -12,8 +12,8 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "rm -rf ./lib && tsc",
-    "lint": "eslint ./src/index.ts",
-    "test": "jest --coverage",
+    "lint": "eslint ./src/index.ts ./tests/lookpath.spec.ts",
+    "test": "jest",
     "validate": "npm run build && node ./bin/lookpath.js npm",
     "release": "npm run build && npm run validate && npm publish"
   },
