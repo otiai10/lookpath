@@ -38,7 +38,7 @@ describe('lookpath', () => {
     });
 
     it('should return undefined if the file is NOT executable', async () => {
-        const notExecutable = await lookpath('./tests/data/bin/goodbye_world');
+        const notExecutable = await lookpath(path.join('.', 'tests', 'data', 'bin', 'goodbye_world'));
         expect(notExecutable).toBeUndefined();
     });
 });
