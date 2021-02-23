@@ -1,7 +1,12 @@
 import { lookpath } from '../src/index';
 import * as path from 'path';
+import { promises as fs } from 'fs';
 
 describe('lookpath', () => {
+
+    beforeAll(async () => {
+        await fs.chmod(path.join('.', 'tests', 'data', 'bin', 'goodbye_world'), 0o644);
+    });
 
     it('should return undefined if the command is NOT existing', async () => {
         const abspathNotExisting = await lookpath('unexistingcommand');
@@ -38,7 +43,9 @@ describe('lookpath', () => {
     });
 
     it('should return undefined if the file is NOT executable', async () => {
-        const notExecutable = await lookpath(path.join('.', 'tests', 'data', 'bin', 'goodbye_world'));
-        expect(notExecutable).toBeUndefined();
+        if (!/^win/i.test(process.platform)) {
+            const notExecutable = await lookpath(path.join('.', 'tests', 'data', 'bin', 'goodbye_world'));
+            expect(notExecutable).toBeUndefined();
+        }
     });
 });
