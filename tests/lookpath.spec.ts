@@ -48,4 +48,21 @@ describe('lookpath', () => {
             expect(notExecutable).toBeUndefined();
         }
     });
+
+    it('should be case-INsensitive', async () => {
+        let result;
+        const include = [path.join(__dirname, 'data', 'bin')];
+        result = await lookpath('HELLO_WORLD', { include });
+        expect(result).not.toBeUndefined();
+        result = await lookpath('HELLO_WORLD_NOTFOUND', { include });
+        expect(result).toBeUndefined();
+        result = await lookpath('PING');
+        expect(result).not.toBeUndefined();
+        if (/^win/i.test(process.platform)) {
+            result = await lookpath('ping.exe');
+            expect(result).not.toBeUndefined();
+            result = await lookpath('PING.EXE');
+            expect(result).not.toBeUndefined();
+        }
+    });
 });
