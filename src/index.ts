@@ -15,22 +15,13 @@ const isFilepath = (cmd: string): string | undefined => {
 }
 
 /**
- * In Windows OS, there are aliases to executable files, like ".sh", ".bash" or ".py".
- * @private
- * @return {string[]}
- */
-const getApplicableExtensions = (): string[] => {
-    return (isWindows) ? (process.env.PATHEXT || '').split(path.delimiter) : [''];
-};
-
-/**
  * Just promisifies "fs.access"
  * @private
- * @param {string} absWithExt An absolute file path with an applicable extension appended.
+ * @param {string} fpath An absolute file path with an applicable extension appended.
  * @return {Promise<string>} Resolves absolute path or empty string.
  */
-const access = (absWithExt: string): Promise<string> => {
-    return new Promise(resolve => fs.access(absWithExt, fs.constants.X_OK, err => resolve(err ? '' : absWithExt)));
+const access = (fpath: string): Promise<string | undefined> => {
+    return new Promise(resolve => fs.access(fpath, fs.constants.X_OK, err => resolve(err ? undefined : fpath)));
 };
 
 /**
@@ -39,34 +30,10 @@ const access = (absWithExt: string): Promise<string> => {
  * @param {string} abspath A file path to be checked.
  * @return {Promise<string>} Resolves the absolute file path just checked, or undefined.
  */
-const isExecutable = async (abspath: string): Promise<string> => {
-    // {{{ TODO: Refactoring
-    const checks: Promise<string>[] = [access(abspath)];
-    getApplicableExtensions().map(ext => checks.push(access(abspath + ext)));
-    // }}}
-    const abspathes = await Promise.all(checks);
-    return Promise.resolve(abspathes.filter(abs => !!abs)[0]);
-};
-
-/**
- * Just to list up all the files under the directory given.
- * @param {string} dir An absolute directory path to list the contents.
- * @return {Promise<string[]>} Resolves the list of contents of this directory.
- */
-const ls = (dir: string): Promise<string[]> => {
-    return new Promise(resolve => fs.readdir(dir, (err, files) => resolve(files || [])));
-};
-
-/**
- * Returns all executable files which have the same name with the target command.
- * @private
- * @param {string} cmd The target command we are looking for.
- * @param {string} dir The target directory in which the command would be looked for.
- */
-const findExecutableUnderDir = async (cmd: string, dir: string): Promise<string[]> => {
-    const files = await ls(dir);
-    const matches = files.filter(f => path.basename(f).split('.')[0] === cmd);
-    return Promise.all(matches.map(f => isExecutable(path.join(dir, f))));
+const isExecutable = async (abspath: string): Promise<string | undefined> => {
+    const exts = (process.env.PATHEXT || '').split(path.delimiter).concat('');
+    const bins = await Promise.all(exts.map(ext => access(abspath + ext)));
+    return bins.find(bin => !!bin);
 };
 
 /**
@@ -82,16 +49,6 @@ const getDirsToWalkThrough = (opt: LookPathOption): string[] => {
 };
 
 /**
- * Just to flatten nested lists.
- * @private
- * @param {T[][]} arr
- * @return {T[]}
- */
-const flatten = <T>(arr: T[][]): T[] => {
-    return arr.reduce((prev, curr) => prev.concat(curr), []);
-};
-
-/**
  * Returns async promise with absolute file path of given command,
  * and resolves with undefined if the command not found.
  * @param {string} command Command name to look for.
@@ -104,9 +61,8 @@ export async function lookpath(command: string, opt: LookPathOption = {}): Promi
     if (directpath) return isExecutable(directpath);
 
     const dirs = getDirsToWalkThrough(opt);
-    const detections = dirs.map(dir => findExecutableUnderDir(command, dir));
-    const matched = await Promise.all(detections);
-    return flatten<string>(matched).filter(abs => !!abs)[0];
+    const bins = await Promise.all(dirs.map(dir => isExecutable(path.join(dir, command))));
+    return bins.find(bin => !!bin);
 }
 
 /**
