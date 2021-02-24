@@ -49,7 +49,8 @@ describe('lookpath', () => {
         }
     });
 
-    it('should be case-INsensitive', async () => {
+    it('should be case-INsensitive on Windows & macOS', async () => {
+        if (!/^(win|darwin)/i.test(process.platform)) return;
         let result;
         const include = [path.join(__dirname, 'data', 'bin')];
         result = await lookpath('HELLO_WORLD', { include });
