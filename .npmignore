@@ -1,6 +1,8 @@
 .vscode
 .circleci
-.eslintrc
+.eslintrc.yml
+.github
+.gitignore
 tests
 coverage
 node_modules
