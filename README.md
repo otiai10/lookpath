@@ -5,6 +5,7 @@
 [![Node.js CI](https://github.com/otiai10/lookpath/workflows/Node.js%20CI/badge.svg)](https://github.com/otiai10/lookpath/actions/)
 [![codecov](https://codecov.io/gh/otiai10/lookpath/branch/master/graph/badge.svg)](https://codecov.io/gh/otiai10/lookpath)
 [![Maintainability](https://api.codeclimate.com/v1/badges/1cc9237695a7bd8e3d60/maintainability)](https://codeclimate.com/github/otiai10/lookpath/maintainability)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fotiai10%2Flookpath.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fotiai10%2Flookpath?ref=badge_shield)
 
 To check if the command exists and where the executable file is.
 
@@ -46,3 +47,7 @@ const p = await lookpath('bash', { include: ['/home/hiromu/.bin'], exclude: ['/m
 - https://github.com/otiai10/lookpath/issues
 
 Any feedback would be appreciated ;)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fotiai10%2Flookpath.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fotiai10%2Flookpath?ref=badge_large)
