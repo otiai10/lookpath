@@ -1,6 +1,6 @@
 {
   "name": "lookpath",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "The minimum and most straightforward way to check if command exists and where the executable is.",
   "engines": {
     "npm": ">=6.13.4"
