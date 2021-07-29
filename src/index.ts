@@ -30,8 +30,9 @@ const access = (fpath: string): Promise<string | undefined> => {
  * @param {string} abspath A file path to be checked.
  * @return {Promise<string>} Resolves the absolute file path just checked, or undefined.
  */
-const isExecutable = async (abspath: string): Promise<string | undefined> => {
-    const exts = (process.env.PATHEXT || '').split(path.delimiter).concat('');
+const isExecutable = async (abspath: string, opt: LookPathOption = {}): Promise<string | undefined> => {
+    const envvars = opt.env || process.env;
+    const exts = (envvars.PATHEXT || '').split(path.delimiter).concat('');
     const bins = await Promise.all(exts.map(ext => access(abspath + ext)));
     return bins.find(bin => !!bin);
 };
@@ -44,8 +45,9 @@ const isExecutable = async (abspath: string): Promise<string | undefined> => {
  * @return {string[]} Directories to dig into.
  */
 const getDirsToWalkThrough = (opt: LookPathOption): string[] => {
+    const envvars = opt.env || process.env;
     const envname = isWindows ? 'Path' : 'PATH';
-    return (process.env[envname] || '').split(path.delimiter).concat(opt.include || []).filter(p => !(opt.exclude || []).includes(p));
+    return (envvars[envname] || '').split(path.delimiter).concat(opt.include || []).filter(p => !(opt.exclude || []).includes(p));
 };
 
 /**
@@ -58,10 +60,10 @@ const getDirsToWalkThrough = (opt: LookPathOption): string[] => {
 export async function lookpath(command: string, opt: LookPathOption = {}): Promise<string | undefined> {
 
     const directpath = isFilepath(command);
-    if (directpath) return isExecutable(directpath);
+    if (directpath) return isExecutable(directpath, opt);
 
     const dirs = getDirsToWalkThrough(opt);
-    const bins = await Promise.all(dirs.map(dir => isExecutable(path.join(dir, command))));
+    const bins = await Promise.all(dirs.map(dir => isExecutable(path.join(dir, command), opt)));
     return bins.find(bin => !!bin);
 }
 
@@ -79,4 +81,9 @@ export interface LookPathOption {
      * Example: ['/mnt']
      */
     exclude?: string[];
+    /**
+     * Set of env var to be used ON BEHALF OF the existing env of your runtime.
+     * If `include` or `exclude` are given, they will be applied to this env set.
+     */
+    env?: NodeJS.ProcessEnv;
 }
