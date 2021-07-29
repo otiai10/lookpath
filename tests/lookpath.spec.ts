@@ -62,7 +62,7 @@ describe('lookpath', () => {
         expect(result).toBeUndefined();
         result = await lookpath('PING');
         expect(result).not.toBeUndefined();
-        if (/^win/i.test(process.platform)) {
+        if (isWindows) {
             result = await lookpath('ping.exe');
             expect(result).not.toBeUndefined();
             result = await lookpath('PING.EXE');
