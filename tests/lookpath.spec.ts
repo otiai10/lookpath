@@ -2,7 +2,10 @@ import { lookpath } from '../src/index';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 
+
 describe('lookpath', () => {
+
+    const isWindows = /^win/i.test(process.platform);
 
     beforeAll(async () => {
         await fs.chmod(path.join('.', 'tests', 'data', 'bin', 'goodbye_world'), 0o644);
@@ -59,11 +62,27 @@ describe('lookpath', () => {
         expect(result).toBeUndefined();
         result = await lookpath('PING');
         expect(result).not.toBeUndefined();
-        if (/^win/i.test(process.platform)) {
+        if (isWindows) {
             result = await lookpath('ping.exe');
             expect(result).not.toBeUndefined();
             result = await lookpath('PING.EXE');
             expect(result).not.toBeUndefined();
         }
+    });
+
+    it('should accept env option to be used instead of process.env of runtime', async () => {
+        const env: NodeJS.ProcessEnv = {
+            [isWindows ? "Path" : "PATH"]: [
+                path.join(__dirname, 'data', 'bin'),
+                path.join(__dirname, 'data', 'bin_1'),
+                path.join(__dirname, 'data', 'bin_2'),
+            ].join(path.delimiter),
+        };
+        let result = await lookpath('node', { env });
+        expect(result).toBeUndefined();
+        result = await lookpath('node');
+        expect(result).not.toBeUndefined();
+        result = await lookpath('hello_mike', { env });
+        expect(result).not.toBeUndefined();
     });
 });
