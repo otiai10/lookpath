@@ -3,6 +3,7 @@
 [![npm version](https://badge.fury.io/js/lookpath.svg)](https://badge.fury.io/js/lookpath)
 [![npm download](https://img.shields.io/npm/dt/lookpath.svg)](https://www.npmjs.com/package/lookpath)
 [![Node.js CI](https://github.com/otiai10/lookpath/workflows/Node.js%20CI/badge.svg)](https://github.com/otiai10/lookpath/actions/)
+[![CodeQL](https://github.com/otiai10/lookpath/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/otiai10/lookpath/actions/workflows/codeql-analysis.yml)
 [![codecov](https://codecov.io/gh/otiai10/lookpath/branch/master/graph/badge.svg)](https://codecov.io/gh/otiai10/lookpath)
 [![Maintainability](https://api.codeclimate.com/v1/badges/1cc9237695a7bd8e3d60/maintainability)](https://codeclimate.com/github/otiai10/lookpath/maintainability)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fotiai10%2Flookpath.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fotiai10%2Flookpath?ref=badge_shield)
