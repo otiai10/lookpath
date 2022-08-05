@@ -159,4 +159,4 @@ interface NoFindAll {
 
 type LookOptionsFindAll = BaseLookPathOption & FindAll;
 type LookOptionsNoFindAll = BaseLookPathOption & NoFindAll;
-type LookPathOption = LookOptionsFindAll | LookOptionsNoFindAll;
+export type LookPathOption = LookOptionsFindAll | LookOptionsNoFindAll;
