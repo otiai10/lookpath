@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { COMMON_PATHS } from './common';
+
+type MaybeString = string | undefined;
 
 const isWindows = /^win/i.test(process.platform);
 
@@ -12,7 +15,7 @@ const isWindows = /^win/i.test(process.platform);
  */
 const isFilepath = (cmd: string): string | undefined => {
     return cmd.includes(path.sep) ? path.resolve(cmd) : undefined;
-}
+};
 
 /**
  * Just promisifies "fs.access"
@@ -21,20 +24,21 @@ const isFilepath = (cmd: string): string | undefined => {
  * @return {Promise<string>} Resolves absolute path or empty string.
  */
 const access = (fpath: string): Promise<string | undefined> => {
-    return new Promise(resolve => fs.access(fpath, fs.constants.X_OK, err => resolve(err ? undefined : fpath)));
+    return new Promise((resolve) => fs.access(fpath, fs.constants.X_OK, (err) => resolve(err ? undefined : fpath)));
 };
 
 /**
  * Resolves if the given file is executable or not, regarding "PATHEXT" to be applied.
  * @private
  * @param {string} abspath A file path to be checked.
+ * @param {LookPathOption} opt Options for lookpath.
  * @return {Promise<string>} Resolves the absolute file path just checked, or undefined.
  */
-const isExecutable = async (abspath: string, opt: LookPathOption = {}): Promise<string | undefined> => {
+const isExecutable = async (abspath: string, opt: LookPathOption = {}): Promise<MaybeString | MaybeString[]> => {
     const envvars = opt.env || process.env;
     const exts = (envvars.PATHEXT || '').split(path.delimiter).concat('');
-    const bins = await Promise.all(exts.map(ext => access(abspath + ext)));
-    return bins.find(bin => !!bin);
+    const bins = await Promise.all(exts.map((ext) => access(abspath + ext)));
+    return opt.findAll ? Array.from(new Set(bins.filter(Boolean).flat())) : bins.find((bin) => !!bin);
 };
 
 /**
@@ -47,35 +51,53 @@ const isExecutable = async (abspath: string, opt: LookPathOption = {}): Promise<
 const getDirsToWalkThrough = (opt: LookPathOption): string[] => {
     const envvars = opt.env || process.env;
     const envname = isWindows ? 'Path' : 'PATH';
-    return (envvars[envname] || '').split(path.delimiter).concat(opt.include || []).filter(p => !(opt.exclude || []).includes(p));
+    return (envvars[envname] || '')
+        .split(path.delimiter)
+        .concat(opt.include || [])
+        .concat(opt.includeCommonPaths ? COMMON_PATHS : [])
+        .filter((p) => !(opt.exclude || []).includes(p));
 };
 
+// Stronger typed functions so that it can infer if it's returning an array with opt.findAll or not
+export function lookpath(command: string): Promise<MaybeString>;
+export function lookpath(command: string, opt: BaseLookPathOption & FindAll): Promise<MaybeString[]>;
+export function lookpath(
+    command: string,
+    opt: BaseLookPathOption | (BaseLookPathOption & NoFindAll)
+): Promise<MaybeString>;
 /**
  * Returns async promise with absolute file path of given command,
  * and resolves with undefined if the command not found.
  * @param {string} command Command name to look for.
  * @param {LookPathOption} opt Options for lookpath.
- * @return {Promise<string|undefined>} Resolves absolute file path, or undefined if not found.
+ * @return {Promise<string|undefined | (string|undefined)[]>} Resolves absolute file path, or undefined if not found.
  */
-export async function lookpath(command: string, opt: LookPathOption = {}): Promise<string | undefined> {
-
+export async function lookpath(command: string, opt: LookPathOption = {}): Promise<MaybeString | MaybeString[]> {
     const directpath = isFilepath(command);
     if (directpath) return isExecutable(directpath, opt);
 
     const dirs = getDirsToWalkThrough(opt);
-    const bins = await Promise.all(dirs.map(dir => isExecutable(path.join(dir, command), opt)));
-    return bins.find(bin => !!bin);
+    const bins = await Promise.all(dirs.map((dir) => isExecutable(path.join(dir, command), opt)));
+    return opt.findAll ? Array.from(new Set(bins.filter(Boolean).flat())) : bins.find((bin) => !!bin);
 }
-
 /**
  * Options for lookpath.
  */
-export interface LookPathOption {
+interface BaseLookPathOption {
     /**
      * Additional pathes to look for, would be dealt same as PATH env.
      * Example: ['/tmp/bin', 'usr/local/bin']
      */
     include?: string[];
+    /**
+     * Look in common paths if they're not included in process.env or opts.env
+     * Those common paths are enumerated in `src/common.ts`
+     */
+    includeCommonPaths?: boolean;
+    /**
+     * Returns an array of all binaries matching that name in the PATH.
+     */
+    findAll?: boolean;
     /**
      * Pathes to exclude to look for.
      * Example: ['/mnt']
@@ -87,3 +109,22 @@ export interface LookPathOption {
      */
     env?: NodeJS.ProcessEnv;
 }
+
+/**
+ * Options for lookpath.
+ */
+interface FindAll {
+    /**
+     * Returns an array of all binaries matching that name in the PATH.
+     */
+    findAll: true;
+}
+
+/**
+ * Options for lookpath.
+ */
+interface NoFindAll {
+    findAll?: false | undefined;
+}
+
+type LookPathOption = (BaseLookPathOption & FindAll) | (BaseLookPathOption & NoFindAll);

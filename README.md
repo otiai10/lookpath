@@ -27,30 +27,43 @@ const p = await lookpath('bash');
 
 ```js
 const p = await lookpath('bash', {
-  include: ['/home/hiromu/.bin'],
-  exclude: ['/mnt']
+    include: ['/home/hiromu/.bin'],
+    exclude: ['/mnt'],
 });
 // include: Do scan also under `~/.bin`
 // exclude: Do NOT scan under `/mnt`
 ```
 
+```js
+const p = await lookpath('bash', {
+    includeCommonPaths: true,
+});
+// includeCommonPaths: Will scan for bash in many common binary directories, not just those specified in PATH
+```
+
+```js
+const p = await lookpath('bash', {
+    findAll: true,
+});
+// ["/bin/bash"], an array containing all the bash binaries found in any path
+// includeCommonPaths: Will scan for bash in many common binary directories, not just those specified in PATH
+```
+
 # Motivation
 
-- I don't want to spawn `child_process` in order to kick `which`, `where`, `whereis`, or `command -v`.
-    - [node.js - Node - check existence of command in path - Stack Overflow](https://stackoverflow.com/questions/34953168/node-check-existence-of-command-in-path/)
-    - [Node.js: Check if a command exists - Gist](https://gist.github.com/jmptable/7a3aa580efffdef50fa9f0dd3d068d6f)
-    - [mathisonian/command-exists: node module to check if a command-line command exists - GitHub](https://github.com/mathisonian/command-exists)
-- then I checked Go implementation of [`exec.LookPath`](https://golang.org/pkg/os/exec/#LookPath).
-    - [src/os/exec/lp_unix.go - The Go Programming Language](https://golang.org/src/os/exec/lp_unix.go?s=928:970#L24)
-- so I concluded that scanning under `$PATH` or `$Path` is the best straightforward way to check if the command exists.
-
+-   I don't want to spawn `child_process` in order to kick `which`, `where`, `whereis`, or `command -v`.
+    -   [node.js - Node - check existence of command in path - Stack Overflow](https://stackoverflow.com/questions/34953168/node-check-existence-of-command-in-path/)
+    -   [Node.js: Check if a command exists - Gist](https://gist.github.com/jmptable/7a3aa580efffdef50fa9f0dd3d068d6f)
+    -   [mathisonian/command-exists: node module to check if a command-line command exists - GitHub](https://github.com/mathisonian/command-exists)
+-   then I checked Go implementation of [`exec.LookPath`](https://golang.org/pkg/os/exec/#LookPath).
+    -   [src/os/exec/lp_unix.go - The Go Programming Language](https://golang.org/src/os/exec/lp_unix.go?s=928:970#L24)
+-   so I concluded that scanning under `$PATH` or `$Path` is the best straightforward way to check if the command exists.
 
 # Issues
 
-- https://github.com/otiai10/lookpath/issues
+-   https://github.com/otiai10/lookpath/issues
 
 Any feedback would be appreciated ;)
-
 
 # License
 
