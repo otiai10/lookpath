@@ -12,14 +12,16 @@ To check if the command exists and where the executable file is, **WITHOUT** usi
 
 ```
 npm install lookpath
+yarn add lookpath
 ```
 
 # Example usage
 
 ```js
-const { lookpath } = require('lookpath');
+const { lookpath, lookpathSync } = require('lookpath');
 
 const p = await lookpath('bash');
+const pSync = lookpathSync('bash');
 // "/bin/bash", otherwise "undefined"
 ```
 

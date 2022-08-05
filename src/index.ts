@@ -23,8 +23,16 @@ const isFilepath = (cmd: string): string | undefined => {
  * @param {string} fpath An absolute file path with an applicable extension appended.
  * @return {Promise<string>} Resolves absolute path or empty string.
  */
-const access = (fpath: string): Promise<string | undefined> => {
+const access = (fpath: string): Promise<MaybeString> => {
     return new Promise((resolve) => fs.access(fpath, fs.constants.X_OK, (err) => resolve(err ? undefined : fpath)));
+};
+const accessSync = (fpath: string): MaybeString => {
+    try {
+        fs.accessSync(fpath, fs.constants.X_OK);
+        return fpath;
+    } catch {
+        return undefined;
+    }
 };
 
 /**
@@ -35,9 +43,15 @@ const access = (fpath: string): Promise<string | undefined> => {
  * @return {Promise<string>} Resolves the absolute file path just checked, or undefined.
  */
 const isExecutable = async (abspath: string, opt: LookPathOption = {}): Promise<MaybeString | MaybeString[]> => {
-    const envvars = opt.env || process.env;
+    const envvars = opt.env || { ...process.env }; // make a copy of process.env
     const exts = (envvars.PATHEXT || '').split(path.delimiter).concat('');
     const bins = await Promise.all(exts.map((ext) => access(abspath + ext)));
+    return opt.findAll ? Array.from(new Set(bins.filter(Boolean).flat())) : bins.find((bin) => !!bin);
+};
+const isExecutableSync = (abspath: string, opt: LookPathOption = {}): MaybeString | MaybeString[] => {
+    const envvars = opt.env || { ...process.env }; // make a copy of process.env
+    const exts = (envvars.PATHEXT || '').split(path.delimiter).concat('');
+    const bins = exts.map((ext) => accessSync(abspath + ext));
     return opt.findAll ? Array.from(new Set(bins.filter(Boolean).flat())) : bins.find((bin) => !!bin);
 };
 
@@ -49,7 +63,7 @@ const isExecutable = async (abspath: string, opt: LookPathOption = {}): Promise<
  * @return {string[]} Directories to dig into.
  */
 const getDirsToWalkThrough = (opt: LookPathOption): string[] => {
-    const envvars = opt.env || process.env;
+    const envvars = opt.env || { ...process.env }; // make a copy of process.env
     const envname = isWindows ? 'Path' : 'PATH';
     return (envvars[envname] || '')
         .split(path.delimiter)
@@ -58,13 +72,6 @@ const getDirsToWalkThrough = (opt: LookPathOption): string[] => {
         .filter((p) => !(opt.exclude || []).includes(p));
 };
 
-// Stronger typed functions so that it can infer if it's returning an array with opt.findAll or not
-export function lookpath(command: string): Promise<MaybeString>;
-export function lookpath(command: string, opt: BaseLookPathOption & FindAll): Promise<MaybeString[]>;
-export function lookpath(
-    command: string,
-    opt: BaseLookPathOption | (BaseLookPathOption & NoFindAll)
-): Promise<MaybeString>;
 /**
  * Returns async promise with absolute file path of given command,
  * and resolves with undefined if the command not found.
@@ -72,12 +79,35 @@ export function lookpath(
  * @param {LookPathOption} opt Options for lookpath.
  * @return {Promise<string|undefined | (string|undefined)[]>} Resolves absolute file path, or undefined if not found.
  */
+// Stronger typed functions so that it can infer if it's returning an array with opt.findAll or not
+export function lookpath(command: string): Promise<MaybeString>;
+export function lookpath(command: string, opt: LookOptionsFindAll): Promise<MaybeString[]>;
+export function lookpath(command: string, opt: BaseLookPathOption | LookOptionsNoFindAll): Promise<MaybeString>;
 export async function lookpath(command: string, opt: LookPathOption = {}): Promise<MaybeString | MaybeString[]> {
     const directpath = isFilepath(command);
     if (directpath) return isExecutable(directpath, opt);
 
     const dirs = getDirsToWalkThrough(opt);
     const bins = await Promise.all(dirs.map((dir) => isExecutable(path.join(dir, command), opt)));
+    return opt.findAll ? Array.from(new Set(bins.filter(Boolean).flat())) : bins.find((bin) => !!bin);
+}
+
+/**
+ * Synchronous version with absolute file path of given command,
+ * and returns undefined if the command not found.
+ * @param {string} command Command name to look for.
+ * @param {LookPathOption} opt Options for lookpath.
+ * @return {string|undefined | (string|undefined)[]} Resolves absolute file path, or undefined if not found.
+ */
+export function lookpathSync(command: string): MaybeString;
+export function lookpathSync(command: string, opt: LookOptionsFindAll): MaybeString[];
+export function lookpathSync(command: string, opt: BaseLookPathOption | LookOptionsNoFindAll): MaybeString;
+export function lookpathSync(command: string, opt: LookPathOption = {}): MaybeString | MaybeString[] {
+    const directpath = isFilepath(command);
+    if (directpath) return isExecutableSync(directpath, opt);
+
+    const dirs = getDirsToWalkThrough(opt);
+    const bins = dirs.map((dir) => isExecutableSync(path.join(dir, command), opt));
     return opt.findAll ? Array.from(new Set(bins.filter(Boolean).flat())) : bins.find((bin) => !!bin);
 }
 /**
@@ -127,4 +157,6 @@ interface NoFindAll {
     findAll?: false | undefined;
 }
 
-type LookPathOption = (BaseLookPathOption & FindAll) | (BaseLookPathOption & NoFindAll);
+type LookOptionsFindAll = BaseLookPathOption & FindAll;
+type LookOptionsNoFindAll = BaseLookPathOption & NoFindAll;
+type LookPathOption = LookOptionsFindAll | LookOptionsNoFindAll;
