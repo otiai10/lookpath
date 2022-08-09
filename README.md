@@ -12,14 +12,16 @@ To check if the command exists and where the executable file is, **WITHOUT** usi
 
 ```
 npm install lookpath
+yarn add lookpath
 ```
 
 # Example usage
 
 ```js
-const { lookpath } = require('lookpath');
+const { lookpath, lookpathSync } = require('lookpath');
 
 const p = await lookpath('bash');
+const pSync = lookpathSync('bash');
 // "/bin/bash", otherwise "undefined"
 ```
 
@@ -32,6 +34,21 @@ const p = await lookpath('bash', {
 });
 // include: Do scan also under `~/.bin`
 // exclude: Do NOT scan under `/mnt`
+```
+
+```js
+const p = await lookpath('bash', {
+    includeCommonPaths: true,
+});
+// includeCommonPaths: Will scan for bash in many common binary directories, not just those specified in PATH
+```
+
+```js
+const p = await lookpath('bash', {
+    findAll: true,
+});
+// ["/bin/bash"], an array containing all the bash binaries found in any path
+// includeCommonPaths: Will scan for bash in many common binary directories, not just those specified in PATH
 ```
 
 # Motivation
