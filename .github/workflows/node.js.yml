@@ -14,9 +14,9 @@ jobs:
         node-version: [10.x, 12.x, 14.x]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
@@ -24,6 +24,6 @@ jobs:
     - run: npm run validate
     - run: npm run lint
     - run: npm test -- --coverage
-    - uses: codecov/codecov-action@v1
+    - uses: codecov/codecov-action@v4
       with:
         file: ./coverage/coverage-final.json
