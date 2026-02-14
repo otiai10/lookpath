@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const isWindows = /^win/i.test(process.platform);
+const isWindows = process.platform === 'win32';
 
 /**
  * Sometimes, people want to look for local executable files
@@ -15,13 +15,18 @@ const isFilepath = (cmd: string): string | undefined => {
 }
 
 /**
- * Just promisifies "fs.access"
+ * Checks whether a file is accessible and executable.
  * @private
  * @param {string} fpath An absolute file path with an applicable extension appended.
- * @return {Promise<string>} Resolves absolute path or empty string.
+ * @return {Promise<string>} Resolves absolute path, or undefined if not executable.
  */
-const access = (fpath: string): Promise<string | undefined> => {
-    return new Promise(resolve => fs.access(fpath, fs.constants.X_OK, err => resolve(err ? undefined : fpath)));
+const access = async (fpath: string): Promise<string | undefined> => {
+    try {
+        await fs.promises.access(fpath, fs.constants.X_OK);
+        return fpath;
+    } catch {
+        return undefined;
+    }
 };
 
 /**
@@ -32,9 +37,9 @@ const access = (fpath: string): Promise<string | undefined> => {
  */
 const isExecutable = async (abspath: string, opt: LookPathOption = {}): Promise<string | undefined> => {
     const envvars = opt.env || process.env;
-    const exts = (envvars.PATHEXT || '').split(path.delimiter).concat('');
+    const exts = (envvars.PATHEXT || '').split(path.delimiter).concat('').filter((ext, i, arr) => arr.indexOf(ext) === i);
     const bins = await Promise.all(exts.map(ext => access(abspath + ext)));
-    return bins.find(bin => !!bin);
+    return bins.find(Boolean);
 };
 
 /**
@@ -64,7 +69,7 @@ export async function lookpath(command: string, opt: LookPathOption = {}): Promi
 
     const dirs = getDirsToWalkThrough(opt);
     const bins = await Promise.all(dirs.map(dir => isExecutable(path.join(dir, command), opt)));
-    return bins.find(bin => !!bin);
+    return bins.find(Boolean);
 }
 
 /**
