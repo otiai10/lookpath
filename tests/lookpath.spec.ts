@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 
 describe('lookpath', () => {
 
-    const isWindows = /^win/i.test(process.platform);
+    const isWindows = process.platform === 'win32';
 
     beforeAll(async () => {
         await fs.chmod(path.join('.', 'tests', 'data', 'bin', 'goodbye_world'), 0o644);
@@ -46,14 +46,14 @@ describe('lookpath', () => {
     });
 
     it('should return undefined if the file is NOT executable', async () => {
-        if (!/^win/i.test(process.platform)) {
+        if (!isWindows) {
             const notExecutable = await lookpath(path.join('.', 'tests', 'data', 'bin', 'goodbye_world'));
             expect(notExecutable).toBeUndefined();
         }
     });
 
     it('should be case-INsensitive on Windows & macOS', async () => {
-        if (!/^(win|darwin)/i.test(process.platform)) return;
+        if (!isWindows && process.platform !== 'darwin') return;
         let result;
         const include = [path.join(__dirname, 'data', 'bin')];
         result = await lookpath('HELLO_WORLD', { include });
